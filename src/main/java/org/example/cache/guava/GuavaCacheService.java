@@ -9,8 +9,6 @@ import org.example.cache.CacheEntry;
 public class GuavaCacheService<K> implements Cache<K> {
 
     private com.google.common.cache.Cache<K, CacheEntry> cache;
-    private int CAPACITY = 5;
-    private int EXPIRE_TIMEOUT = 5;
 
     public GuavaCacheService() {
         cache = CacheBuilder.newBuilder()

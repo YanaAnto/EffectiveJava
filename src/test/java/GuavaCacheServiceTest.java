@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public class GuavaCacheServiceTest {
 
-    private static final Logger LOGGER = Logger.getLogger(GuavaCacheService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GuavaCacheServiceTest.class.getName());
     private final String cacheValue = "default value";
     private final String cacheKey = "default key";
     private final String newCacheKey = "new key";
