@@ -1,31 +1,41 @@
 package org.example.cache.guava;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.util.concurrent.TimeUnit;
-import org.example.cache.Cache;
 import org.example.cache.CacheEntry;
 
-public class GuavaCacheService<K> implements Cache<K> {
+public class GuavaCacheService<K> {
 
-    private com.google.common.cache.Cache<K, CacheEntry> cache;
+    private Cache<K, CacheEntry> cache;
+    private int capacity = 100000;
+    private int expireTimeout = 5;
 
     public GuavaCacheService() {
         cache = CacheBuilder.newBuilder()
             .concurrencyLevel(Runtime.getRuntime().availableProcessors())
-            .expireAfterAccess(EXPIRE_TIMEOUT, TimeUnit.SECONDS)
-            .maximumSize(CAPACITY)
+            .expireAfterAccess(expireTimeout, TimeUnit.SECONDS)
+            .maximumSize(capacity)
             .recordStats()
             .removalListener(new GuavaRemovalListener<K>())
             .build();
     }
 
-    @Override
+    public GuavaCacheService(int maxSize) {
+        cache = CacheBuilder.newBuilder()
+            .concurrencyLevel(Runtime.getRuntime().availableProcessors())
+            .expireAfterAccess(expireTimeout, TimeUnit.SECONDS)
+            .maximumSize(maxSize)
+            .recordStats()
+            .removalListener(new GuavaRemovalListener<K>())
+            .build();
+    }
+
     public void put(K key, CacheEntry value) {
         cache.put(key, value);
     }
 
-    @Override
     public CacheEntry get(K key) {
         return cache.getIfPresent(key);
     }
@@ -33,8 +43,8 @@ public class GuavaCacheService<K> implements Cache<K> {
     public String getStatistic() {
         return MoreObjects.toStringHelper(cache.stats())
             .omitNullValues()
-            .add("average load time:", cache.stats().averageLoadPenalty())
-            .add("number of cache evictions", cache.stats().evictionCount())
+            .add("Average load time:", cache.stats().averageLoadPenalty())
+            .add("Number of cache evictions", cache.stats().evictionCount())
             .toString();
     }
 }
