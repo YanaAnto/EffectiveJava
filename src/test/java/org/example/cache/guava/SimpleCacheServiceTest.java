@@ -41,4 +41,14 @@ public class SimpleCacheServiceTest {
         simpleCacheService.put(newCacheKey, new CacheEntry(cacheValue));
         Assertions.assertNull(simpleCacheService.get(newCacheKey));
     }
+
+    @Test
+    @DisplayName("Cache was removed after size excess successfully")
+    void checkCacheStatisticTest() {
+        SimpleCacheService<String> simpleCacheService = new SimpleCacheService<>(1);
+        simpleCacheService.put(cacheKey, new CacheEntry(cacheValue));
+        simpleCacheService.put(newCacheKey, new CacheEntry(cacheValue));
+        Assertions.assertEquals(simpleCacheService.getStatistic().getCacheEvictionNumber(), 1);
+        Assertions.assertTrue(simpleCacheService.getStatistic().getAvgTimeLoadCacheEntry() > 0);
+    }
 }

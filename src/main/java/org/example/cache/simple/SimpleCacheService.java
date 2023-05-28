@@ -15,6 +15,7 @@ public class SimpleCacheService<K> {
     private final Map<K, Instant> keyLastAccessMap = new HashMap<>();
     private final SimpleCacheRemovalListener<K> removalListener = new SimpleCacheRemovalListener();
     private final Map<K, Integer> keyFrequencyMap = new HashMap();
+    private CacheStatistic statistic = new CacheStatistic();
     private int capacity = 100000;
     private int expireTimeout = 5;
 
@@ -26,8 +27,12 @@ public class SimpleCacheService<K> {
     }
 
     public void put(K key, CacheEntry value) {
+        long start = System.currentTimeMillis();
         evictCache(key);
         cache.put(key, value);
+        long finish = System.currentTimeMillis();
+        var loadTime = finish - start;
+        statistic.refreshAvgTimeLoadCacheEntry(loadTime);
     }
 
     public CacheEntry get(K key) {
@@ -38,6 +43,7 @@ public class SimpleCacheService<K> {
     private void removeCacheEntry(K key) {
         cache.remove(key);
         keyLastAccessMap.remove(key);
+        statistic.increaseCacheEvictionNumber();
         removalListener.onRemoval(key);
     }
 
@@ -60,5 +66,9 @@ public class SimpleCacheService<K> {
             keyFrequencyMap.remove(keyToRemove);
             removeCacheEntry(keyToRemove);
         }
+    }
+
+    public CacheStatistic getStatistic() {
+        return statistic;
     }
 }

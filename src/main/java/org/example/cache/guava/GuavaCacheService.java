@@ -9,8 +9,8 @@ import org.example.cache.CacheEntry;
 public class GuavaCacheService<K> {
 
     private Cache<K, CacheEntry> cache;
-    private int capacity = 100000;
-    private int expireTimeout = 5;
+    private final int capacity = 100000;
+    private final int expireTimeout = 5;
 
     public GuavaCacheService() {
         cache = CacheBuilder.newBuilder()
@@ -43,8 +43,8 @@ public class GuavaCacheService<K> {
     public String getStatistic() {
         return MoreObjects.toStringHelper(cache.stats())
             .omitNullValues()
-            .add("Average load time:", cache.stats().averageLoadPenalty())
-            .add("Number of cache evictions", cache.stats().evictionCount())
+            .add("Average load time: ", cache.stats().averageLoadPenalty())
+            .add("Number of cache evictions: ", cache.stats().evictionCount())
             .toString();
     }
 }
