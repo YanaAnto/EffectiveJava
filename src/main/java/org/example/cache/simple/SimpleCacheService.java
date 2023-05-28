@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.example.cache.CacheEntry;
 
 public class SimpleCacheService<K> {
@@ -12,6 +14,7 @@ public class SimpleCacheService<K> {
     private final LinkedHashMap<K, CacheEntry> cache = new LinkedHashMap();
     private final Map<K, Instant> keyLastAccessMap = new HashMap<>();
     private final SimpleCacheRemovalListener<K> removalListener = new SimpleCacheRemovalListener();
+    private final Map<K, Integer> keyFrequencyMap = new HashMap();
     private int capacity = 100000;
     private int expireTimeout = 5;
 
@@ -34,21 +37,28 @@ public class SimpleCacheService<K> {
 
     private void removeCacheEntry(K key) {
         cache.remove(key);
+        keyLastAccessMap.remove(key);
         removalListener.onRemoval(key);
     }
 
     private void evictCache(K key) {
-        if (keyLastAccessMap.get(key) == null) {
-            keyLastAccessMap.put(key, Instant.now());
-        }
-        keyLastAccessMap.entrySet().forEach(item -> {
-            var lastAccessDuration = Duration.between(keyLastAccessMap.get(item.getKey()), Instant.now());
+        keyLastAccessMap.put(key, Instant.now());
+        keyFrequencyMap.putIfAbsent(key, 0);
+        keyFrequencyMap.merge(key, 1, Integer::sum);
+        Set<Entry<K, Instant>> keysSet = Set.copyOf(keyLastAccessMap.entrySet());
+        keysSet.forEach(item -> {
+            var lastAccessDuration = Duration.between(keyLastAccessMap.get(item.getKey()),
+                Instant.now());
             if (lastAccessDuration.getSeconds() >= expireTimeout) {
                 removeCacheEntry(item.getKey());
             }
         });
         if (cache.size() >= capacity) {
-            removeCacheEntry(cache.entrySet().iterator().next().getKey());
+            K keyToRemove = keyFrequencyMap.entrySet().stream().sorted(Entry.comparingByValue())
+                .findFirst().get().getKey();
+
+            keyFrequencyMap.remove(keyToRemove);
+            removeCacheEntry(keyToRemove);
         }
     }
 }

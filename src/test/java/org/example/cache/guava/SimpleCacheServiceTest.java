@@ -17,6 +17,7 @@ public class SimpleCacheServiceTest {
     void checkCacheServiceStoreEntry() {
         SimpleCacheService<String> simpleCacheService = new SimpleCacheService<>();
         simpleCacheService.put(cacheKey, new CacheEntry(cacheValue));
+        simpleCacheService.put(cacheKey, new CacheEntry(cacheValue));
         Assertions.assertEquals(simpleCacheService.get(cacheKey).value(), cacheValue,
             String.format("Cannot get cache entry value by key! Expecting: %s, but actual: %s",
                 simpleCacheService.get(cacheKey).value(), cacheValue));
