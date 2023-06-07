@@ -60,11 +60,14 @@ public class SimpleCacheService<K> {
             }
         });
         if (cache.size() >= capacity) {
-            K keyToRemove = keyFrequencyMap.entrySet().stream().sorted(Entry.comparingByValue())
-                .findFirst().get().getKey();
-
-            keyFrequencyMap.remove(keyToRemove);
-            removeCacheEntry(keyToRemove);
+            var keyToRemove = keyFrequencyMap.entrySet()
+                .stream()
+                .min(Entry.comparingByValue())
+                .orElse(null);
+            if (keyToRemove != null) {
+                keyFrequencyMap.remove(keyToRemove.getKey());
+                removeCacheEntry(keyToRemove.getKey());
+            }
         }
     }
 

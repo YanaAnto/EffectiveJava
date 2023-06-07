@@ -5,6 +5,8 @@ public class CacheStatistic {
 
     private int cacheEvictionNumber;
     private long avgMillisLoadCacheEntry;
+    private long totalMilliseconds;
+    private long numItemsAdded;
 
     public CacheStatistic() {
         cacheEvictionNumber = 0;
@@ -12,7 +14,9 @@ public class CacheStatistic {
     }
 
     public void refreshAvgTimeLoadCacheEntry(long loadTime) {
-        avgMillisLoadCacheEntry = (avgMillisLoadCacheEntry + loadTime) / 2;
+        totalMilliseconds += loadTime;
+        numItemsAdded++;
+        avgMillisLoadCacheEntry = totalMilliseconds / numItemsAdded;
     }
 
     public void increaseCacheEvictionNumber() {
